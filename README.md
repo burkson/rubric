@@ -50,7 +50,7 @@ false
 Objects can also be scored against a rubric, so you can see how many keys failed or passed. Returns an array containing the score achieved (index 0), and total possible score (index 1).
 
 ```
-rubric.test({
+rubric.score({
     color: /red|green|blue/i,
     size: rubric.withinRange(1, 10)
 }, {

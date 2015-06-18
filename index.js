@@ -1,6 +1,3 @@
-var async = require('async');
-
-
 /**
  *  Rubric object, this gets returned when using the rubric method.
  */
@@ -75,7 +72,7 @@ rubric.test = function (legend, object) {
                 for (var b = 0; b < base.length; b++)
                     if (rubric.test({ a: base[b] }, { a: value }) === true)
                         return true;
-                
+
                 return false;
             }
 
@@ -114,7 +111,7 @@ rubric.test.breakdown = function (legend, object) {
         var value = object[key];
         var type = typeof base;
         var valid = true;
-        
+
         if (value === undefined && base !== undefined) {
             valid = optional;
         } else if (type == 'function') {
@@ -203,6 +200,38 @@ rubric.score.breakdown = function (legend, object) {
 /**
  * Built in testing functions
  */
+
+// Type
+
+rubric.is = {
+    number: function (value) {
+        return typeof value == 'number';
+    },
+    integer: function (value) {
+        return Number(value) === value && value % 1 === 0;
+    },
+    float: function (value) {
+        return value === Number(value) && value % 1 !== 0;
+    },
+    string: function (value) {
+        return typeof value == 'string';
+    },
+    array: function (value) {
+        return value instanceof Array;
+    },
+    bool: function (value) {
+        return typeof value == 'boolean';
+    },
+    boolean: function (value) {
+        return typeof value == 'boolean';
+    },
+    null: function (value) {
+        return value === null;
+    },
+    object: function (value) {
+        return typeof value == 'object' && value !== null;
+    }
+};
 
 // Numbers
 
