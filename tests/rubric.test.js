@@ -2,23 +2,25 @@ var assert = require('assert');
 var mocha = require('mocha');
 var rubric = require('../index.js');
 
-describe('value types', function () {
-    describe('number, string, boolean, undefined', function () {
-        var legend = {
+describe('rubric.test()', function () {
+    describe('number, string, boolean, undefined, null', function () {
+        var rules = {
             'string': 'some string',
             'number': 1,
             'boolean': false,
-            'undefined': undefined
+            'undefined': undefined,
+            'null': null
         };
 
-        var ru = rubric(legend);
+        var ru = rubric(rules);
 
         it('should return true if all values match exactly', function () {
             assert.equal(ru.test({
                 'string': 'some string',
                 'number': 1,
                 'boolean': false,
-                'undefined': undefined
+                'undefined': undefined,
+                'null': null
             }), true);
         });
 
@@ -27,7 +29,8 @@ describe('value types', function () {
                 'string': 'INVALID STRING',
                 'number': 1,
                 'boolean': false,
-                'undefined': undefined
+                'undefined': undefined,
+                'null': null
             }), false);
         });
 
@@ -45,11 +48,11 @@ describe('value types', function () {
     });
 
     describe('regular expressions', function () {
-        var legend = {
+        var rules = {
             'regex': /^123/i
         };
 
-        var ru = rubric(legend);
+        var ru = rubric(rules);
 
         it('should use the regular expression to test given strings', function () {
             assert.equal(ru.test({ 'regex': '123!' }), true);
@@ -68,7 +71,7 @@ describe('value types', function () {
     });
 
     describe('functions', function () {
-        var legend = {
+        var rules = {
             'fn': function (val) {
                 return val == 1;
             },
@@ -80,7 +83,7 @@ describe('value types', function () {
             }
         };
 
-        var ru = rubric(legend);
+        var ru = rubric(rules);
 
         it('should execute functions and use the return value as the result', function () {
             assert.equal(ru.test({
@@ -106,7 +109,7 @@ describe('value types', function () {
     });
 
     describe('objects', function () {
-        var legend = {
+        var rules = {
             'normal': 'value',
             'nested': {
                 'hello': 'world',
@@ -114,7 +117,7 @@ describe('value types', function () {
             }
         };
 
-        var ru = rubric(legend);
+        var ru = rubric(rules);
 
         it('should treat nested objects as rubrics to use', function () {
             assert.equal(ru.test({
@@ -156,7 +159,7 @@ describe('value types', function () {
             }), false);
         });
     });
-    
+
     describe('arrays', function () {
         it('should return false if array is empty', function () {
             assert.equal(rubric.test({
@@ -165,29 +168,51 @@ describe('value types', function () {
                 'foo': ''
             }), false);
         });
-        
-        it('should return true if any test element passes', function () {
+
+        it('should return true if any sub-rules (non-array) pass', function () {
             assert.equal(rubric.test({
                 'foo': [ 'red', 'blue' ]
             }, {
                 'foo': 'blue'
             }), true);
-            
+
+            assert.equal(rubric.test({
+                'foo': rubric.iterate([ 'red', 'blue' ])
+            }, {
+                'foo': [ 'blue' ]
+            }), true);
+
             assert.equal(rubric.test({
                 'foo': [ 'red', 'blue' ]
             }, {
                 'foo': [ 'blue' ]
+            }), false);
+        });
+
+        it('should return true if all sub-sub-rules pass', function () {
+            assert.equal(rubric.test({
+                'foo': [ [ /^a/i, /c$/i ] ]
+            }, {
+                'foo': 'abc'
             }), true);
         });
-        
-        it('should return false if any value element fails', function () {
+
+        it('should return false if any sub-sub-rules fail', function () {
             assert.equal(rubric.test({
-                'foo': [ 'red', 'blue' ]
+                'foo': [ [ /^a/i, /c$/i ] ]
+            }, {
+                'foo': 'ab'
+            }), false);
+        });
+
+        it('should return false if value is an array and any subvalue fails', function () {
+            assert.equal(rubric.test({
+                'foo': rubric.iterate([ 'red', 'blue' ])
             }, {
                 'foo': [ 'red', 'green' ]
             }), false);
         });
-        
+
         it('should be able to handle objects', function () {
             assert.equal(rubric.test({
                 'foo': [
@@ -195,16 +220,14 @@ describe('value types', function () {
                     { 'key': 'value' }
                 ]
             }, {
-                'foo': [
-                    { 'hello': 'world' }
-                ]
+                'foo': { 'hello': 'world' }
             }), true);
-            
+
             assert.equal(rubric.test({
-                'foo': [
+                'foo': rubric.iterate([
                     { 'hello': 'world' },
                     { 'key': 'value' }
-                ]
+                ])
             }, {
                 'foo': [
                     { 'hello': 'world' },

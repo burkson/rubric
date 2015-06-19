@@ -1,3 +1,3 @@
-require('./keys.js');
-require('./values.js');
-require('./helpers.js');
+require('./rubric.test.js');
+require('./rubric.breakdown.js');
+require('./rubric.helper.js');

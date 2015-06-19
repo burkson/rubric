@@ -1,214 +1,87 @@
-/**
- *  Rubric object, this gets returned when using the rubric method.
- */
-
-function rubricObject (legend) {
-    this.legend = legend;
+function ro (rules) {
+    this.rules = rules;
 }
 
-rubricObject.prototype.test = function (object) {
-    return rubric.test(this.legend, object);
+ro.prototype.test = function (object) {
+    return r.test(this.rules, object);
 };
 
-rubricObject.prototype.test.breakdown = function (object) {
-    return rubric.test.breakdown(this.legend, object);
+ro.prototype.breakdown = function (object) {
+    return r.breakdown(this.rules, object);
 };
 
-rubricObject.prototype.score = function (object) {
-    return rubric.score(this.legend, object);
-};
-
-rubricObject.prototype.score.breakdown = function (object) {
-    return rubric.score.breakdown(this.legend, object);
-};
-
-
-/**
- *  Rubric method, this is the public API.
- */
-
-function rubric (legend) {
-    return new rubricObject(legend);
+function r (rules) {
+    return new ro(rules);
 }
 
-rubric.test = function (legend, object) {
-    for (var i in legend) {
-        var key = cleanKey(i);
-        var optional = isOptional(i);
-        var base = legend[i];
-        var value = object[key];
-        var type = typeof base;
+r.test = function (rules, obj) {
+    if (obj === null || typeof obj != 'object')
+        return false;
 
-        if (value === undefined && base !== undefined) {
-            if (!optional)
-                return false;
+    for (var param in rules) {
+        var rule = rules[param];
+        var value = obj[param];
 
-        // function
-        } else if (type == 'function') {
-            if (base(value) !== true)
-                return false;
-
-        // regular expression
-        } else if (base instanceof RegExp) {
-            if (base.test(value) !== true)
-                return false;
-
-        // array
-        } else if (base instanceof Array) {
-
-            // value is array
-            if (value instanceof Array) {
-
-                // for every element in the value array:
-                // - test against every element in the rubric test array
-                // - continue onto next test element if any pass
-                // - if any value element fails, the whole value fails
-                for (var v = 0; v < value.length; v++)
-                    if (rubric.test({ a: base }, { a: value[v] }) !== true)
-                        return false;
-
-            // test value against every element of rubric array, return true if any pass
-            } else {
-                for (var b = 0; b < base.length; b++)
-                    if (rubric.test({ a: base[b] }, { a: value }) === true)
-                        return true;
-
-                return false;
-            }
-
-        // string, number, boolean, undefined, null
-        } else if (['string', 'number', 'boolean', 'undefined'].indexOf(type) > -1 || base === null) {
-            if (base !== value)
-                return false;
-
-        // rubric object
-        } else if (base instanceof rubricObject) {
-            if (base.test(value) !== true)
-                return false;
-
-        // plain object
-        } else if (type == 'object') {
-            if (rubric.test(base, value) !== true)
-                return false;
-
-        // everything else
-        } else {
-            if (base !== value)
-                return false;
-        }
+        if (testRule(rule, value) !== true)
+            return false;
     }
 
     return true;
 };
 
-rubric.test.breakdown = function (legend, object) {
+r.breakdown = function (rules, obj) {
     var result = {};
 
-    for (var i in legend) {
-        var key = cleanKey(i);
-        var optional = isOptional(i);
-        var base = legend[i];
-        var value = object[key];
-        var type = typeof base;
-        var valid = true;
+    if (obj === null || typeof obj != 'object')
+        return false;
 
-        if (value === undefined && base !== undefined) {
-            valid = optional;
-        } else if (type == 'function') {
-            valid = base(value);
-        } else if (base instanceof RegExp) {
-            valid = base.test(value);
-        } else if (base instanceof Array) {
-            if (value instanceof Array) {
-                for (var v = 0; v < value.length; v++) {
-                    if (rubric.test({ a: base }, { a: value[v] }) !== true) {
-                        valid = false;
-                        break;
-                    }
-                }
-            } else {
-                for (var b = 0; b < base.length; b++) {
-                    if (rubric.test({ a: base[b] }, { a: value }) === true) {
-                        valid = true;
-                        break;
-                    }
-                }
-            }
-        } else if (['string', 'number', 'boolean', 'undefined'].indexOf(type) > -1 || base === null) {
-            valid = base === value;
-        } else if (base instanceof rubricObject) {
-            valid = base.test.breakdown(value);
-        } else if (type == 'object') {
-            valid = rubric.test.breakdown(base, value);
+    for (var param in rules) {
+        var rule = rules[param];
+        var value = obj[param];
+
+        if (rule instanceof ro) {
+            result[param] = rule.breakdown(value);
+        } else if (typeof rule == 'object' && rule !== null && !(rule instanceof Array)) {
+            result[param] = r.breakdown(rule, value);
         } else {
-            valid = base === value;
-        }
-
-        result[key] = valid;
-    }
-
-    return result;
-};
-
-rubric.score = function (legend, object) {
-    var result = 0;
-    var total = 0;
-    var breakdown = rubric.test.breakdown(legend, object);
-
-    for (var i in legend) {
-        var key = cleanKey(i);
-        var score = getScore(i);
-        var valid = breakdown[key];
-        var base = legend[i];
-        var value = object[key];
-
-        if (typeof valid == 'boolean') {
-            result += valid ? score : 0;
-            total += score;
-        } else {
-            valid = rubric.score(base, value);
-            result += valid[0];
-            total += valid[1];
-        }
-    }
-
-    return [result, total];
-};
-
-rubric.score.breakdown = function (legend, object) {
-    var result = {};
-    var breakdown = rubric.test.breakdown(legend, object);
-
-    for (var i in legend) {
-        var key = cleanKey(i);
-        var score = getScore(i);
-        var valid = breakdown[key];
-        var base = legend[i];
-        var value = object[key];
-
-        if (typeof valid == 'boolean') {
-            result[key] = valid ? score : 0;
-        } else {
-            result[key] = rubric.score.breakdown(base, value);
+            result[param] = testRule(rule, value);
         }
     }
 
     return result;
 };
 
+// Optional flag
+r.optional = 'RUBRIC.OPTIONAL';
+r.opt = r.optional;
 
-/**
- * Built in testing functions
- */
+// Iterate
+r.iterate = function (rule) {
+    return function (value) {
+        if (!(value instanceof Array))
+            return false;
+
+        for (var i = 0; i < value.length; i++)
+            if (testRule(rule, value[i]) !== true)
+                return false;
+
+        return true;
+    }
+};
 
 // Type
-
-rubric.is = {
+r.is = {
     number: function (value) {
-        return typeof value == 'number';
+        return typeof value == 'number' || !isNaN(value);
+    },
+    num: function (value) {
+        return r.is.number(value);
     },
     integer: function (value) {
         return Number(value) === value && value % 1 === 0;
+    },
+    int: function (value) {
+        return r.is.integer(value);
     },
     float: function (value) {
         return value === Number(value) && value % 1 !== 0;
@@ -216,232 +89,284 @@ rubric.is = {
     string: function (value) {
         return typeof value == 'string';
     },
+    str: function (value) {
+        return r.is.string(value);
+    },
     array: function (value) {
         return value instanceof Array;
     },
-    bool: function (value) {
-        return typeof value == 'boolean';
+    arr: function (value) {
+        return r.is.array(value);
     },
     boolean: function (value) {
         return typeof value == 'boolean';
+    },
+    bool: function (value) {
+        return r.is.boolean(value);
     },
     null: function (value) {
         return value === null;
     },
     object: function (value) {
-        return typeof value == 'object' && value !== null;
+        return typeof value == 'object' && value !== null && !(value instanceof Array);
+    },
+    obj: function (value) {
+        return r.is.object(value);
     }
 };
 
-// Numbers
-
-rubric.withinRange = function (min, max) {
-    return function (val) {
-        if (typeof val == 'number')
-            return val >= min && val <= max;
-
-        if (val instanceof Array)
-            return val.length >= min && val.length <= max;
-
-        return false;
-    };
+// Number
+r.num = {
+    withinRange: function (min, max) {
+        return function (value) {
+            return value >= min && value <= max;
+        }
+    },
+    range: function (min, max) {
+        return function (value) {
+            return value >= min && value <= max;
+        }
+    },
+    equalTo: function (num) {
+        return function (value) {
+            return value == num;
+        }
+    },
+    greaterThan: function (num) {
+        return function (value) {
+            return value > num;
+        }
+    },
+    lessThan: function (num) {
+        return function (value) {
+            return value < num;
+        }
+    }
 };
 
-rubric.greaterThan = function (num) {
-    return function (val) {
-        if (typeof val == 'number')
-            return val > num;
-
-        return false;
-    };
-};
-
-rubric.greaterThanOrEqual = function (num) {
-    return function (val) {
-        if (typeof val == 'number')
-            return val >= num;
-
-        return false;
-    };
-};
-
-rubric.lessThan = function (num) {
-    return function (val) {
-        if (typeof val == 'number')
-            return val < num;
-
-        return false;
-    };
-};
-
-rubric.lessThanOrEqual = function (num) {
-    return function (val) {
-        if (typeof val == 'number')
-            return val <= num;
-
-        return false;
-    };
-};
-
-// Arrays and strings
-
-rubric.contains = function (thing, flags) {
-    var regex = /(?!)/;
-
-    if (typeof thing == 'string') {
-        regex = new RegExp(
-            thing.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&"),
+// String
+r.str = {
+    contains: function (str, flags) {
+        var regex = new RegExp(
+            str.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&"),
             flags || 'g'
         );
+
+        return function (value) {
+            return regex.test(value);
+        }
+    },
+    startsWith: function (str) {
+        return function (value) {
+            return value.substr(0, str.length) === str;
+        }
+    },
+    endsWith: function (str) {
+        return function (value) {
+            return value.substr(value.length - str.length) === str;
+        }
+    },
+    length: function (num) {
+        return function (value) {
+            return value.length == num;
+        }
+    },
+    lengthRange: function (min, max) {
+        return function (value) {
+            return value.length >= min && value.length <= max;
+        }
+    },
+    maxLength: function (max) {
+        return function (value) {
+            return value.length <= max;
+        }
+    },
+    minLength: function (min) {
+        return function (value) {
+            return value.length >= min;
+        }
+    }
+};
+
+// Array
+r.arr = {
+    contains: function (item) {
+        return function (value) {
+            return value.indexOf(item) > -1;
+        }
+    },
+    containsAll: function () {
+        var args = Array.prototype.slice.apply(arguments);
+
+        return function (value) {
+            for (var i = 0; i < args.length; i++)
+                if (value.indexOf(args[i]) == -1)
+                    return false;
+
+            return true;
+        }
+    },
+    containsAny: function () {
+        var args = Array.prototype.slice.apply(arguments);
+
+        return function (value) {
+            for (var i = 0; i < args.length; i++)
+                if (value.indexOf(args[i]) > -1)
+                    return true;
+
+            return false;
+        }
+    },
+    containsNone: function () {
+        var args = Array.prototype.slice.apply(arguments);
+
+        return function (value) {
+            for (var i = 0; i < args.length; i++)
+                if (value.indexOf(args[i]) > -1)
+                    return false;
+
+            return true;
+        }
+    },
+    startsWith: function () {
+        var args = Array.prototype.slice.apply(arguments);
+
+        return function (value) {
+            if (args.length > value.length)
+                return false;
+
+            for (var i = 0; i < args.length; i++)
+                if (value[i] !== args[i])
+                    return false;
+
+            return true;
+        }
+    },
+    endsWith: function () {
+        var args = Array.prototype.slice.apply(arguments);
+
+        return function (value) {
+            var i = args.length;
+            var j = value.length;
+
+            if (args.length > value.length)
+                return false;
+
+            for (var i = value.length - args.length, j = 0; i < value.length && j < args.length; i++, j++)
+                if (args[j] !== value[i])
+                    return false;
+
+            return true;
+        }
+    },
+    length: function (num) {
+        return function (value) {
+            return value.length == num;
+        }
+    },
+    lengthRange: function (min, max) {
+        return function (value) {
+            return value.length >= min && value.length <= max;
+        }
+    },
+    maxLength: function (max) {
+        return function (value) {
+            return value.length <= max;
+        }
+    },
+    minLength: function (min) {
+        return function (value) {
+            return value.length >= min;
+        }
+    }
+};
+
+// Object
+r.obj = {
+    instanceof: function (object) {
+        return function (value) {
+            return value instanceof object;
+        }
+    },
+    hasProperty: function (prop) {
+        return function (value) {
+            return value.hasOwnProperty(prop);
+        }
+    }
+};
+
+function testRule (rule, value) {
+
+    // optional flag
+    if (rule === r.opt && typeof value == 'undefined')
+        return true;
+
+    // rule is function
+    if (typeof rule == 'function') {
+        if (rule(value) !== true)
+            return false;
     }
 
-    return function (val) {
-        if (typeof val == 'string')
-            return regex.test(val);
-
-        if (val instanceof Array)
-            return val.indexOf(thing);
-
-        return false;
-    };
-};
-
-// Array only
-rubric.containsAll = function () {
-    var args = Array.prototype.slice.apply(arguments);
-
-    return function (val) {
-        if (!(val instanceof Array))
+    // rule is regexp
+    else if (rule instanceof RegExp) {
+        if (rule.test(value) !== true)
             return false;
+    }
 
-        for (var i = 0; i < args.length; i++)
-            if (val.indexOf(args[i]) == -1)
-                return false;
+    // rule is array
+    else if (rule instanceof Array) {
 
-        return true;
-    };
-};
+        // optional
+        if (rule.indexOf(r.opt) > -1 && typeof value == 'undefined')
+            return true;
 
-// Array only
-rubric.containsAny = function () {
-    var args = Array.prototype.slice.apply(arguments);
+        // for each rule in array...
+        for (var i = 0; i < rule.length; i++) {
 
-    return function (val) {
-        if (!(val instanceof Array))
-            return false;
+            // rule in array is an array, all rules in sub-array must pass
+            if (rule[i] instanceof Array) {
+                for (var j = 0; j < rule[i].length; j++)
+                    if (testRule(rule[i][j], value) !== true)
+                        return false;
 
-        for (var i = 0; i < args.length; i++)
-            if (val.indexOf(args[i]) > -1)
                 return true;
+            }
+
+            // test rule in array against value
+            else {
+                if (testRule(rule[i], value) === true)
+                    return true;
+            }
+        }
 
         return false;
-    };
-};
+    }
 
-// Array only
-rubric.containsNone = function () {
-    var args = Array.prototype.slice.apply(arguments);
-
-    return function (val) {
-        if (!(val instanceof Array))
+    // rule is string, number, boolean, null, undefined
+    else if (typeof rule == 'string' || typeof rule == 'number' || typeof rule == 'boolean' || typeof rule == 'undefined' || rule === null) {
+        if (rule !== value)
             return false;
+    }
 
-        for (var i = 0; i < args.length; i++)
-            if (val.indexOf(args[0]) > -1)
-                return false;
+    // rule is rubric object
+    else if (rule instanceof ro) {
+        if (rule.test(value) !== true)
+            return false;
+    }
 
-        return true;
-    };
-};
+    // rule is object
+    else if (typeof rule == 'object') {
+        if (r.test(rule, value) !== true)
+            return false;
+    }
 
-rubric.startsWith = function (thing) {
-    return function (val) {
-        if (typeof val == 'string' && typeof thing == 'string')
-            return val.substr(0, thing.length) === thing;
+    // everything else
+    else {
+        if (rule !== value)
+            return false;
+    }
 
-        if (val instanceof Array)
-            return val[0] === thing;
-
-        return false;
-    };
-};
-
-rubric.endsWith = function (thing) {
-    return function (val) {
-        if (typeof val == 'string' && typeof thing == 'string')
-            return val.substr(val.length - thing.length) === thing;
-
-        if (val instanceof Array)
-            return val[val.length - 1] === thing;
-
-        return false;
-    };
-};
-
-rubric.length = function (num) {
-    return function (val) {
-        if (typeof val == 'string' || val instanceof Array)
-            return val.length == num;
-
-        return false;
-    };
-};
-
-rubric.lengthRange = function (min, max) {
-    return function (val) {
-        if (typeof val == 'string' || val instanceof Array)
-            return val.length >= min && val.length <= max;
-
-        return false;
-    };
-};
-
-// Objects and misc
-
-rubric.instanceof = function (object) {
-    return function (val) {
-        return val instanceof object;
-    };
-};
-
-rubric.typeof = function (type) {
-    return function (val) {
-        return typeof val == type;
-    };
-};
-
-rubric.hasProperty = function (key) {
-    return function (val) {
-        if (typeof val == 'object');
-            return val.hasOwnProperty(key);
-
-        return false;
-    };
-};
-
-/**
- *  Helper functions
- */
-
-function isOptional (key) {
-    return /.+:optional*/.test(key);
+    return true;
 }
 
-function isLiteral (key) {
-    return /.+:literal*/.test(key);
-}
-
-function getScore (key) {
-    var capture = /.+:score\((.+)\)*/.exec(key);
-
-    if (capture === null)
-        return 1;
-    else
-        return parseInt(capture[1]);
-}
-
-function cleanKey (key) {
-    return key.replace(/:optional/, '').replace(/:score\(.+\)/, '');
-}
-
-module.exports = exports = rubric;
+module.exports = exports = r;
