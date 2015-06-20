@@ -1,6 +1,6 @@
 var assert = require('assert');
 var mocha = require('mocha');
-var rubric = require('../index.js');
+var rubric = require('../rubric.js');
 
 describe('rubric.test()', function () {
     describe('number, string, boolean, undefined, null', function () {
@@ -12,10 +12,8 @@ describe('rubric.test()', function () {
             'null': null
         };
 
-        var ru = rubric(rules);
-
         it('should return true if all values match exactly', function () {
-            assert.equal(ru.test({
+            assert.equal(rubric.test(rules, {
                 'string': 'some string',
                 'number': 1,
                 'boolean': false,
@@ -25,7 +23,7 @@ describe('rubric.test()', function () {
         });
 
         it('should return false if any values do not match', function () {
-            assert.equal(ru.test({
+            assert.equal(rubric.test(rules, {
                 'string': 'INVALID STRING',
                 'number': 1,
                 'boolean': false,
@@ -52,21 +50,19 @@ describe('rubric.test()', function () {
             'regex': /^123/i
         };
 
-        var ru = rubric(rules);
-
         it('should use the regular expression to test given strings', function () {
-            assert.equal(ru.test({ 'regex': '123!' }), true);
-            assert.equal(ru.test({ 'regex': 'invalid /123?/' }), false);
+            assert.equal(rubric.test(rules, { 'regex': '123!' }), true);
+            assert.equal(rubric.test(rules, { 'regex': 'invalid /123?/' }), false);
         });
 
         it('should try and convert non-string values to string', function () {
-            assert.equal(ru.test({ 'regex': 123 }), true);
-            assert.equal(ru.test({ 'regex': false }), false);
-            assert.equal(ru.test({ 'regex': [ 'array' ] }), false);
-            assert.equal(ru.test({ 'regex': [ '123' ] }), true);
-            assert.equal(ru.test({ 'regex': [ 1, 2, 3 ] }), false);
-            assert.equal(ru.test({ 'regex': [ '12', 3 ] }), false);
-            assert.equal(ru.test({ 'regex': { 'object': 'value' } }), false);
+            assert.equal(rubric.test(rules, { 'regex': 123 }), true);
+            assert.equal(rubric.test(rules, { 'regex': false }), false);
+            assert.equal(rubric.test(rules, { 'regex': [ 'array' ] }), false);
+            assert.equal(rubric.test(rules, { 'regex': [ '123' ] }), true);
+            assert.equal(rubric.test(rules, { 'regex': [ 1, 2, 3 ] }), false);
+            assert.equal(rubric.test(rules, { 'regex': [ '12', 3 ] }), false);
+            assert.equal(rubric.test(rules, { 'regex': { 'object': 'value' } }), false);
         });
     });
 
@@ -83,16 +79,14 @@ describe('rubric.test()', function () {
             }
         };
 
-        var ru = rubric(rules);
-
         it('should execute functions and use the return value as the result', function () {
-            assert.equal(ru.test({
+            assert.equal(rubric.test(rules, {
                 'fn': 1,
                 'always': 'this property can contain any value',
                 'invalid': true
             }), true);
 
-            assert.equal(ru.test({
+            assert.equal(rubric.test(rules, {
                 'fn': 2,
                 'always': 'this property can contain any value',
                 'invalid': true
@@ -100,7 +94,7 @@ describe('rubric.test()', function () {
         });
 
         it('should treat non-boolean return values as false', function () {
-            assert.equal(ru.test({
+            assert.equal(rubric.test(rules, {
                 'fn': 1,
                 'always': 'this property can contain any value',
                 'invalid': false
@@ -117,10 +111,8 @@ describe('rubric.test()', function () {
             }
         };
 
-        var ru = rubric(rules);
-
         it('should treat nested objects as rubrics to use', function () {
-            assert.equal(ru.test({
+            assert.equal(rubric.test(rules, {
                 'normal': 'value',
                 'nested': {
                     'hello': 'world',
@@ -128,32 +120,9 @@ describe('rubric.test()', function () {
                 }
             }), true);
 
-            assert.equal(ru.test({
+            assert.equal(rubric.test(rules, {
                 'normal': 'value',
                 'nested': {
-                    'foo': 'bar'
-                }
-            }), false);
-        });
-
-        it('should treat nested rubric objects as rubrics to use', function () {
-            var ru = rubric({
-                'normal': 'value',
-                'rubric': rubric({
-                    'hello': 'world'
-                })
-            });
-
-            assert.equal(ru.test({
-                'normal': 'value',
-                'rubric': {
-                    'hello': 'world'
-                }
-            }), true);
-
-            assert.equal(ru.test({
-                'normal': 'value',
-                'rubric': {
                     'foo': 'bar'
                 }
             }), false);

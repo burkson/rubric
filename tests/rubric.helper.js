@@ -1,6 +1,6 @@
 var assert = require('assert');
 var mocha = require('mocha');
-var rubric = require('../index.js');
+var rubric = require('../rubric.js');
 
 describe('rubric.optional(), rubric.opt()', function () {
     var rules = {
@@ -30,238 +30,84 @@ describe('rubric.optional(), rubric.opt()', function () {
     });
 });
 
-describe('rubric.is', function () {
-    it('.number()', function () {
-        assert.equal(rubric.test({
-            number: rubric.is.number
-        }, {
-            number: 1
-        }), true);
-
-        assert.equal(rubric.test({
-            number: rubric.is.number
-        }, {
-            number: 1.2
-        }), true);
-
-        assert.equal(rubric.test({
-            number: rubric.is.number
-        }, {
-            number: 'asdf'
-        }), false);
-
-        assert.equal(rubric.test({
-            number: rubric.is.number
-        }, {
-            number: false
-        }), false);
-    });
-
-    it('.integer()', function () {
-        assert.equal(rubric.test({
-            integer: rubric.is.integer
-        }, {
-            integer: 1
-        }), true);
-
-        assert.equal(rubric.test({
-            integer: rubric.is.integer
-        }, {
-            integer: -10
-        }), true);
-
-        assert.equal(rubric.test({
-            integer: rubric.is.integer
-        }, {
-            integer: 1.2
-        }), false);
-
-        assert.equal(rubric.test({
-            integer: rubric.is.integer
-        }, {
-            integer: 'asdf'
-        }), false);
-    });
-
-    it('.float()', function () {
-        assert.equal(rubric.test({
-            float: rubric.is.float
-        }, {
-            float: 1.1
-        }), true);
-
-        assert.equal(rubric.test({
-            float: rubric.is.float
-        }, {
-            float: 1
-        }), false);
-
-        assert.equal(rubric.test({
-            float: rubric.is.float
-        }, {
-            float: -0.8374
-        }), true);
-
-        assert.equal(rubric.test({
-            float: rubric.is.float
-        }, {
-            float: '1.1'
-        }), false);
-    });
-
-    it('.string()', function () {
-        assert.equal(rubric.test({
-            string: rubric.is.string
-        }, {
-            string: 'asdf'
-        }), true);
-
-        assert.equal(rubric.test({
-            string: rubric.is.string
-        }, {
-            string: true
-        }), false);
-
-        assert.equal(rubric.test({
-            string: rubric.is.string
-        }, {
-            string: [1,2,3]
-        }), false);
-    });
-
-    it('.array()', function () {
-        assert.equal(rubric.test({
-            array: rubric.is.array
-        }, {
-            array: [1,2,3]
-        }), true);
-
-        assert.equal(rubric.test({
-            array: rubric.is.array
-        }, {
-            array: { a: 1 }
-        }), false);
-
-        assert.equal(rubric.test({
-            array: rubric.is.array
-        }, {
-            array: []
-        }), true);
-    });
-
-    it('.boolean()', function () {
-        assert.equal(rubric.test({
-            boolean: rubric.is.boolean
-        }, {
-            boolean: true
-        }), true);
-
-        assert.equal(rubric.test({
-            boolean: rubric.is.boolean
-        }, {
-            boolean: false
-        }), true);
-
-        assert.equal(rubric.test({
-            boolean: rubric.is.boolean
-        }, {
-            boolean: 'foobar'
-        }), false);
-
-        assert.equal(rubric.test({
-            boolean: rubric.is.boolean
-        }, {
-            boolean: 0
-        }), false);
-
-        assert.equal(rubric.test({
-            boolean: rubric.is.boolean
-        }, {
-            boolean: null
-        }), false);
-    });
-
-    it('.null()', function () {
-        assert.equal(rubric.test({
-            null: rubric.is.null
-        }, {
-            null: null
-        }), true);
-
-        assert.equal(rubric.test({
-            null: rubric.is.null
-        }, {
-            null: {}
-        }), false);
-
-        assert.equal(rubric.test({
-            null: rubric.is.null
-        }, {
-            null: undefined
-        }), false);
-
-        assert.equal(rubric.test({
-            null: rubric.is.null
-        }, {
-            null: false
-        }), false);
-    });
-
-    it('.object()', function () {
-        assert.equal(rubric.test({
-            object: rubric.is.object
-        }, {
-            object: {}
-        }), true);
-
-        assert.equal(rubric.test({
-            object: rubric.is.object
-        }, {
-            object: new Error('test')
-        }), true);
-
-        assert.equal(rubric.test({
-            object: rubric.is.object
-        }, {
-            object: null
-        }), false);
-
-        assert.equal(rubric.test({
-            object: rubric.is.object
-        }, {
-            object: []
-        }), false);
-    });
-});
-
 describe('rubric.num', function () {
+    it('()', function () {
+        assert.equal(rubric.test({
+            num: rubric.num
+        }, {
+            num: 10
+        }), true);
+
+        assert.equal(rubric.test({
+            num: rubric.num
+        }, {
+            num: '10'
+        }), true);
+
+        assert.equal(rubric.test({
+            num: rubric.num
+        }, {
+            num: true
+        }), false);
+
+        assert.equal(rubric.test({
+            num: rubric.num
+        }, {
+            num: 'foobar'
+        }), false);
+
+        assert.equal(rubric.test({
+            num: rubric.num
+        }, {
+            num: {}
+        }), false);
+
+        assert.equal(rubric.test({
+            num: rubric.num
+        }, {
+            num: undefined
+        }), false);
+
+        assert.equal(rubric.test({
+            num: rubric.num
+        }, {
+            num: null
+        }), false);
+
+        assert.equal(rubric.test({
+            num: rubric.num
+        }, {
+            num: [ 10 ]
+        }), true);
+    });
+
     it('.withinRange()', function () {
         assert.equal(rubric.test({
-            num: rubric.num.withinRange(100, 200)
+            num: rubric.num.range(100, 200)
         }, {
             num: 150
         }), true);
 
         assert.equal(rubric.test({
-            num: rubric.num.withinRange(100, 200)
+            num: rubric.num.range(100, 200)
         }, {
             num: 100
         }), true);
 
         assert.equal(rubric.test({
-            num: rubric.num.withinRange(100, 200)
+            num: rubric.num.range(100, 200)
         }, {
             num: 200
         }), true);
 
         assert.equal(rubric.test({
-            num: rubric.num.withinRange(100, 200)
+            num: rubric.num.range(100, 200)
         }, {
             num: 99
         }), false);
 
         assert.equal(rubric.test({
-            num: rubric.num.withinRange(100, 200)
+            num: rubric.num.range(100, 200)
         }, {
             num: 201
         }), false);
@@ -357,75 +203,75 @@ describe('rubric.str', function () {
         }), false);
     });
 
-    it('.length()', function () {
+    it('.sizeOf()', function () {
         assert.equal(rubric.test({
-            str: rubric.str.length(3)
+            str: rubric.str.sizeOf(3)
         }, {
             str: 'foo'
         }), true);
 
         assert.equal(rubric.test({
-            str: rubric.str.length(3)
+            str: rubric.str.sizeOf(3)
         }, {
             str: 'foobar'
         }), false);
     });
 
-    it('.lengthRange()', function () {
+    it('.range()', function () {
         assert.equal(rubric.test({
-            str: rubric.str.lengthRange(2, 5)
+            str: rubric.str.range(2, 5)
         }, {
             str: '123'
         }), true);
 
         assert.equal(rubric.test({
-            str: rubric.str.lengthRange(2, 5)
+            str: rubric.str.range(2, 5)
         }, {
             str: '123456'
         }), false);
 
         assert.equal(rubric.test({
-            str: rubric.str.lengthRange(2, 5)
+            str: rubric.str.range(2, 5)
         }, {
             str: '1'
         }), false);
 
         assert.equal(rubric.test({
-            str: rubric.str.lengthRange(2, 5)
+            str: rubric.str.range(2, 5)
         }, {
             str: '12'
         }), true);
 
         assert.equal(rubric.test({
-            str: rubric.str.lengthRange(2, 5)
+            str: rubric.str.range(2, 5)
         }, {
             str: '12345'
         }), true);
     });
 
-    it('.maxLength()', function () {
+    it('.max()', function () {
         assert.equal(rubric.test({
-            str: rubric.str.maxLength(5)
+            str: rubric.str.max(5)
         }, {
             str: 'foo'
         }), true);
 
         assert.equal(rubric.test({
-            str: rubric.str.maxLength(5)
+            str: rubric.str.max(5)
         }, {
             str: 'foobar'
         }), false);
     });
 
-    it('.minLength()', function () {
+    it('.min()', function () {
         assert.equal(rubric.test({
-            str: rubric.str.minLength(5)
+            str: rubric.str.min(5)
         }, {
             str: 'foobar'
         }), true);
 
         assert.equal(rubric.test({
-            str: rubric.str.minLength(5)
+            str: rubric.str.min(5)
         }, {
             str: 'foo'
         }), false);
@@ -535,93 +381,93 @@ describe('rubric.arr', function () {
         }), false);
     });
 
-    it('.length()', function () {
+    it('.sizeOf()', function () {
         assert.equal(rubric.test({
-            arr: rubric.arr.length(3)
+            arr: rubric.arr.sizeOf(3)
         }, {
             arr: [1,2,3]
         }), true);
 
         assert.equal(rubric.test({
-            arr: rubric.arr.length(3)
+            arr: rubric.arr.sizeOf(3)
         }, {
             arr: [1,2]
         }), false);
 
         assert.equal(rubric.test({
-            arr: rubric.arr.length(3)
+            arr: rubric.arr.sizeOf(3)
         }, {
             arr: [1,2,3,4]
         }), false);
     });
 
-    it('.lengthRange()', function () {
+    it('.range()', function () {
         assert.equal(rubric.test({
-            arr: rubric.arr.lengthRange(2, 4)
+            arr: rubric.arr.range(2, 4)
         }, {
             arr: [1,2,3]
         }), true);
 
         assert.equal(rubric.test({
-            arr: rubric.arr.lengthRange(2, 4)
+            arr: rubric.arr.range(2, 4)
         }, {
             arr: [1]
         }), false);
 
         assert.equal(rubric.test({
-            arr: rubric.arr.lengthRange(2, 4)
+            arr: rubric.arr.range(2, 4)
         }, {
             arr: [1,2,3,4,5]
         }), false);
 
         assert.equal(rubric.test({
-            arr: rubric.arr.lengthRange(2, 4)
+            arr: rubric.arr.range(2, 4)
         }, {
             arr: [1,2]
         }), true);
 
         assert.equal(rubric.test({
-            arr: rubric.arr.lengthRange(2, 4)
+            arr: rubric.arr.range(2, 4)
         }, {
             arr: [1,2,3,4]
         }), true);
     });
 
-    it('.maxLength()', function () {
+    it('.max()', function () {
         assert.equal(rubric.test({
-            arr: rubric.arr.maxLength(4)
+            arr: rubric.arr.max(4)
         }, {
             arr: [1,2,3]
         }), true);
 
         assert.equal(rubric.test({
-            arr: rubric.arr.maxLength(4)
+            arr: rubric.arr.max(4)
         }, {
             arr: [1,2,3,4]
         }), true);
 
         assert.equal(rubric.test({
-            arr: rubric.arr.maxLength(4)
+            arr: rubric.arr.max(4)
         }, {
             arr: [1,2,3,4,5]
         }), false);
     });
 
-    it('.minLength()', function () {
+    it('.min()', function () {
         assert.equal(rubric.test({
-            arr: rubric.arr.minLength(2)
+            arr: rubric.arr.min(2)
         }, {
             arr: [1,2,3]
         }), true);
 
         assert.equal(rubric.test({
-            arr: rubric.arr.minLength(2)
+            arr: rubric.arr.min(2)
         }, {
             arr: [1,2]
         }), true);
 
         assert.equal(rubric.test({
-            arr: rubric.arr.minLength(2)
+            arr: rubric.arr.min(2)
         }, {
             arr: [1]
         }), false);

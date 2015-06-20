@@ -1,222 +1,158 @@
 # Rubric
 
-## Getting Started
+Easy-to-use and simple-to-read object validation library.
 
-Install the module:
-```
-npm install rubric
-```
+## Quick Start
 
-Setup your object to test against.
+Install using npm:
 
 ```
-var legend = {
-    color: /red|green|blue/i,
-    size: rubric.withinRange(1, 10)
+> npm install rubric
+```
+
+Or, download the source file `rubric.js` listed above.
+
+Set up your first ruleset and test.
+
+```
+var userRuleSet = {
+    name: {
+        first: rubric.str.max(50),
+        last: rubric.str.max(50)
+    },
+    age: [ rubric.optional, rubric.num.range(0, 100) ],
+    password: rubric.str.min(6),
+    newsletter: rubric.bool
 };
+
+if (rubric.test(userRuleSet, userData) === false)
+    throw new Error('userData is invalid!');
 ```
 
-Create a rubric object:
+## Methods
 
-```
-var myRubric = rubric(legend);
-myRubric.test({ ... });
-```
+### rubric.test(ruleset, object)
 
-OR go straight to testing:
+Test a ruleset against an object.
 
-```
-rubric.test(legend, { ... });
-```
+### rubric.test.rule(rule, value)
 
-## Testing
+Test a single rule against a value.
 
-Test an object against a rubric to determine whether or not the object is valid. Only returns true if all given values are valid, and false if any fail.
+### rubric.breakdown(ruleset, object)
 
-```
-rubric.test({
-    size: rubric.withinRange(1, 10)
-}, {
-    size: 20
-});
-```
-```
-false
-```
-*Returns false because size is out of the predefined range.*
+Test a ruleset against an object and return an object that outlines which parameters are valid and invaid.
 
-## Scoring
+## Tests
 
-Objects can also be scored against a rubric, so you can see how many keys failed or passed. Returns an array containing the score achieved (index 0), and total possible score (index 1).
+Tests that are included as part of the library. Remember, you can always write your own tests in the form of functions or regular expressions.
 
-```
-rubric.score({
-    color: /red|green|blue/i,
-    size: rubric.withinRange(1, 10)
-}, {
-    color: 'orange',
-    size: 5
-});
-```
-```
-[1,2]
-```
+## Numbers
 
-*Returns [1, 2], because color is not a valid option, therefore losing 1 point from the total possible of 2.*
+### rubric.num
 
-## Breakdown
+### rubric.num.range(min, max)
 
-Get a breakdown of test results and scores to see each individual property's evaluation. This can be useful to figure out why an object failed or scored a certain way.
+### rubric.num.greaterThan(num)
 
-### Testing Breakdown
-```
-rubric.test.breakdown({
-    color: /red|green|blue/i,
-    size: rubric.withinRange(1, 10),
-    comments: /*/
-}, {
-    color: 'red',
-    size: 5
-});
-```
-```
-{
-    color: true,
-    size: true,
-    comments: false
-}
-```
+### rubric.num.lessThan(num)
 
-### Scoring Breakdown
-```
-rubric.score.breakdown({
-    color: /red|green|blue/i,
-    size: rubric.withinRange(1, 10),
-    comments: /*/
-}, {
-    color: 'red',
-    size: 5
-});
-```
-```
-{
-    color: 1,
-    size: 1,
-    comments: 0
-}
-```
+### rubric.num.min(num)
 
+### rubric.num.max(num)
 
----
+## Integers
 
+### rubric.int
 
-## Keys
+### rubric.int.range(min, max)
 
-### :optional
+### rubric.int.greaterThan(num)
 
-All keys are required by default. If a key is optional, add the ":optional" tag to the end of the key and it will not be counted as wrong if the either the key is not there or the value is undefined.
+### rubric.int.lessThan(num)
 
-### :score(n)
+### rubric.int.min(num)
 
-All keys are worth 1 point by default. Set a different score value using the ":score(n)" tag, where "n" is an number. "intval" will be used to parse the number, any non-numbers will result in NaN being returned for both score and total.
+### rubric.int.max(num)
 
-Optional key scores are counted toward the total. If a key is missing or the value is valid, the points are given. If the key is set and the value is invalid, no points are given.
+### rubric.int.even
 
+### rubric.int.odd
 
----
+## Float
 
+### rubric.float
 
-## Values
+### rubric.float.precision
 
-### Strings, Numbers, Booleans, Undefined, Null
+### rubric.float.range(min, max)
 
-These rubric value types will be treated literally. Meaning the tested value must match the rubric value exactly. This is probably not too useful.
+### rubric.float.greaterThan(num)
 
-### Regular Expression
+### rubric.float.lessThan(num)
 
-Regular expressions will be used to test the given value. All non-string values will attempted to be converted to strings before testing.
+### rubric.float.min(num)
 
-```
-{
-    'color': /red|blue|green/i
-}
-```
+### rubric.float.max(num)
 
-### Functions
+## String
 
-Functions will be given the current value as the first argument. Expected return values of true or false. Anything else besides true will be interpreted as false.
+### rubric.str
 
-```
-{
-    'color': function (value) {
-        if (['red', 'blue', 'green'].indexOf(value) > -1)
-            return true;
+### rubric.str.contains(str, flags)
 
-        return false;
-    }
-}
-```
+### rubric.str.startsWith(str)
 
-### Plain Objects
+### rubric.str.endsWith(str)
 
-Values that are objects or other rubrics will be treated as another rubric, meaning you can nest rubrics to test multi-level objects.
+### rubric.str.sizeOf(num)
 
-```
-{
-    'color': {
-        'value': rubric.containsAny('red', 'blue', 'green')
-    }
-}
+### rubric.str.range(min, max)
 
-{
-    'color': rubric({
-        'value': rubric.containsAny('red', 'blue', 'green')
-    })
-}
-```
+### rubric.str.min(num)
 
-Objects that are not plain or not rubrics should not be used. Resulting behavior is unpredictable.
+### rubric.str.max(num)
 
-### Arrays
+## Array
 
-An array can be used in 2 different ways. One, if the given value is an array, test every element in the array against every element in the test array, Two, for any other value type, test that value against every element in the test array. Only 1 test in in the test array needs to pass.
+### rubric.arr
 
-```
-{
-    'color': [
-        rubric.options('red', 'blue', 'green')
-    ]
-}
-```
+### rubric.arr.contains(element)
 
----
+### rubric.arr.containsAll(element, ...)
 
-## Built In Functions
+### rubric.arr.containsAny(element, ...)
 
-### For Number
-```
-rubric.withinRange(min, max)
-rubric.greaterThan(num)
-rubric.greaterThanOrEqual(num)
-rubric.lessThan(num)
-rubric.lessThanOrEqual(num)
-```
+### rubric.arr.containsNone(element, ...)
 
-### For Strings and Arrays
-```
-rubric.contains(str|any)
-rubric.containsAll(n1, n2, ..)  // arrays only
-rubric.containsAny(n1, n2, ..)  // arrays only
-rubric.containsNone(n1, n2, ..) // arrays only
-rubric.startsWith(str|any)
-rubric.endsWith(str|any)
-rubric.length(num)
-rubric.lengthRange(min, max)
-```
+### rubric.arr.startsWith(element, ...)
 
-### For Objects
-```
-rubric.instanceof(object)
-rubric.typeof(type)
-rubric.hasProperty(key)
-```
+### rubric.arr.endsWith(element, ...)
+
+### rubric.arr.sizeOf(num)
+
+### rubric.arr.range(min, max)
+
+### rubric.arr.min(num)
+
+### rubric.arr.max(num)
+
+## Object
+
+### rubric.obj
+
+### rubric.obj.instanceof(object)
+
+### rubric.obj.hasProperty(str)
+
+## Misc
+
+### rubric.bool
+
+### rubric.null
+
+### rubric.undefined
+
+### rubric.truthy
+
+### rubric.falsy
