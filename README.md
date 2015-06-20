@@ -2,7 +2,22 @@
 
 Easy-to-use and simple-to-read object validation library.
 
-## Quick Start
+- <a href="#quick-start">Quick Start</a>
+- <a href="#methods">Methods</a>
+    - <a href="#rubric.test">rubric.test(ruleset, object)</a>
+    - <a href="#rubric.test.rule">rubric.test.rule(rule, value)</a>
+    - <a href="#rubric.breakdown">rubric.breakdown(ruleset, object)</a>
+- <a href="#tests">Tests</a>
+    - <a href="#tests.number">Number</a>
+    - <a href="#tests.integer">Integer</a>
+    - <a href="#tests.float">Float</a>
+    - <a href="#tests.string">String</a>
+    - <a href="#tests.array">Array</a>
+    - <a href="#tests.object">Object</a>
+    - <a href="#tests.function">Function</a>
+    - <a href="#tests.misc">Misc</a>
+
+<h2 id="quick-start">Quick Start</h2>
 
 Install using npm:
 
@@ -10,7 +25,7 @@ Install using npm:
 > npm install rubric
 ```
 
-Or, download the source file `rubric.js` listed above.
+Or, download the source file [__rubric.js__](https://raw.githubusercontent.com/jinger89/rubric/master/rubric.js) listed above.
 
 Set up your first ruleset and test.
 
@@ -25,29 +40,29 @@ var userRuleSet = {
     newsletter: rubric.bool
 };
 
-if (rubric.test(userRuleSet, userData) === false)
+if (!rubric.test(userRuleSet, userData))
     throw new Error('userData is invalid!');
 ```
 
-## Methods
+<h2 id="methods">Methods</h2>
 
-### rubric.test(ruleset, object)
+<h3 id="rubric.test">rubric.test(ruleset, object)</h3>
 
 Test a ruleset against an object.
 
-### rubric.test.rule(rule, value)
+<h3 id="rubric.test.rule">rubric.test.rule(rule, value)</h3>
 
 Test a single rule against a value.
 
-### rubric.breakdown(ruleset, object)
+<h3 id="rubric.breakdown">rubric.breakdown(ruleset, object)</h3>
 
 Test a ruleset against an object and return an object that outlines which parameters are valid and invaid.
 
-## Tests
+<h2 id="tests">Tests</h2>
 
 Tests that are included as part of the library. Remember, you can always write your own tests in the form of functions or regular expressions.
 
-## Numbers
+<h2 id="tests.number">Number</h2>
 
 ### rubric.num
 
@@ -65,7 +80,7 @@ Tests that are included as part of the library. Remember, you can always write y
 
 ### rubric.num.negative
 
-## Integers
+<h2 id="tests.integer">Integer</h2>
 
 ### rubric.int
 
@@ -87,7 +102,7 @@ Tests that are included as part of the library. Remember, you can always write y
 
 ### rubric.int.negative
 
-## Float
+<h2 id="tests.float">Float</h2>
 
 ### rubric.float
 
@@ -107,7 +122,7 @@ Tests that are included as part of the library. Remember, you can always write y
 
 ### rubric.float.negative
 
-## String
+<h2 id="tests.string">String</h2>
 
 ### rubric.str
 
@@ -125,7 +140,7 @@ Tests that are included as part of the library. Remember, you can always write y
 
 ### rubric.str.max(num)
 
-## Array
+<h2 id="tests.array">Array</h2>
 
 ### rubric.arr
 
@@ -149,7 +164,7 @@ Tests that are included as part of the library. Remember, you can always write y
 
 ### rubric.arr.max(num)
 
-## Object
+<h2 id="tests.object">Object</h2>
 
 ### rubric.obj
 
@@ -157,13 +172,13 @@ Tests that are included as part of the library. Remember, you can always write y
 
 ### rubric.obj.hasProperty(str)
 
-## Function
+<h2 id="tests.function">Function</h2>
 
 ### rubric.fn
 
 ### rubric.fn.args(num)
 
-## Misc
+<h2 id="tests.misc">Misc</h2>
 
 ### rubric.bool
 
