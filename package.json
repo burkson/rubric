@@ -1,6 +1,6 @@
 {
   "name": "rubric",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "Easy-to-use and simple-to-read object validation library.",
   "main": "rubric.js",
   "scripts": {
