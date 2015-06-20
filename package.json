@@ -8,7 +8,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/burkson/rubric.git"
+    "url": "https://github.com/jinger89/rubric.git"
   },
   "keywords": [
     "validation"
@@ -16,6 +16,6 @@
   "author": "Jing Tao Liu",
   "license": "BSD",
   "bugs": {
-    "url": "https://github.com/burkson/rubric/issues"
+    "url": "https://github.com/jinger89/rubric/issues"
   }
 }
