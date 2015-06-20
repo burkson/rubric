@@ -175,6 +175,14 @@
         }
     };
 
+    r.num.pos = r.num.positive = function (value) {
+        return r.num(value) && value > 0;
+    };
+
+    r.num.neg = r.num.negative = function (value) {
+        return r.num(value) && value < 0;
+    };
+
     // Integer
     r.int = r.integer = function (value) {
         return Number(value) === value && value % 1 === 0;
@@ -218,6 +226,14 @@
         return r.int(value) && Math.abs(n) % 2 == 1;
     };
 
+    r.int.pos = r.int.positive = function (value) {
+        return r.int(value) && value > 0;
+    };
+
+    r.int.neg = r.int.negative = function (value) {
+        return r.int(value) && value < 0;
+    };
+
     // Float
     r.float = r.dec = r.decimal = function (value) {
         return value === Number(value) && value % 1 !== 0;
@@ -257,6 +273,14 @@
         return function (value) {
             return r.float(num) && value <= max;
         }
+    };
+
+    r.float.pos = r.float.positive = function (value) {
+        return r.float(value) && value > 0;
+    };
+
+    r.float.neg = r.float.negative = function (value) {
+        return r.float(value) && value < 0;
     };
 
     // String
@@ -429,6 +453,17 @@
     r.obj.hasProperty = function (prop) {
         return function (value) {
             return r.obj(value) && value.hasOwnProperty(prop);
+        }
+    };
+
+    // Function
+    r.fn = r.function = function (value) {
+        return typeof value == 'function';
+    };
+
+    r.fn.args = function (num) {
+        return function (value) {
+            return r.fn(value) && value.length == num;
         }
     };
 

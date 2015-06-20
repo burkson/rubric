@@ -61,6 +61,10 @@ Tests that are included as part of the library. Remember, you can always write y
 
 ### rubric.num.max(num)
 
+### rubric.num.positive
+
+### rubric.num.negative
+
 ## Integers
 
 ### rubric.int
@@ -79,6 +83,10 @@ Tests that are included as part of the library. Remember, you can always write y
 
 ### rubric.int.odd
 
+### rubric.int.positive
+
+### rubric.int.negative
+
 ## Float
 
 ### rubric.float
@@ -94,6 +102,10 @@ Tests that are included as part of the library. Remember, you can always write y
 ### rubric.float.min(num)
 
 ### rubric.float.max(num)
+
+### rubric.float.positive
+
+### rubric.float.negative
 
 ## String
 
@@ -144,6 +156,12 @@ Tests that are included as part of the library. Remember, you can always write y
 ### rubric.obj.instanceof(object)
 
 ### rubric.obj.hasProperty(str)
+
+## Function
+
+### rubric.fn
+
+### rubric.fn.args(num)
 
 ## Misc
 
