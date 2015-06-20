@@ -1,6 +1,6 @@
 var assert = require('assert');
 var mocha = require('mocha');
-var rubric = require('../index.js');
+var rubric = require('../rubric.js');
 
 describe('rubric.breakdown()', function () {
     describe('flat object', function () {
