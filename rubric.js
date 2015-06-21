@@ -219,11 +219,11 @@
     };
 
     r.int.even = function (value) {
-        return r.int(value) && n % 2 == 0;
+        return r.int(value) && value % 2 == 0;
     };
 
     r.int.odd = function (value) {
-        return r.int(value) && Math.abs(n) % 2 == 1;
+        return r.int(value) && Math.abs(value) % 2 == 1;
     };
 
     r.int.pos = r.int.positive = function (value) {
