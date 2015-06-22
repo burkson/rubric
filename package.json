@@ -1,6 +1,6 @@
 {
   "name": "rubric",
-  "version": "0.3.4",
+  "version": "0.3.5",
   "description": "Easy-to-use and simple-to-read object validation library.",
   "main": "rubric.js",
   "scripts": {
@@ -14,7 +14,7 @@
     "validation"
   ],
   "author": "Jing Tao Liu",
-  "license": "BSD",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/jinger89/rubric/issues"
   }
