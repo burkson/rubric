@@ -76,13 +76,7 @@ var rubric = ( function () {
         self.endsWith = sub => add(str => str.endsWith(sub));
         self.contains = sub => add(str => str.search(sub) > - 1);
         self.regexp = exp => add(str => exp.test(str));
-        
-        self.is = arr => {
-            if (typeof arr == 'string')
-                arr = [ arr ];
-            
-            return add(str => arr.indexOf(str) > -1);
-        };
+        self.is = (...args) => add(str => args.indexOf(str) > -1);
     }
     
     StringTests.prototype = Object.create(RubricTests.prototype);
@@ -90,9 +84,12 @@ var rubric = ( function () {
     
     function NumberTests () {
         RubricTests.call(this);
+        
         var self = this;
         var add = (test) => { self.tests.push(test); return self; };
+        
         add(num => typeof num == 'number');
+        
         self.max = n => add(num => num <= n);
         self.min = n => add(num => num >= n);
         self.greaterThan = n => add(num => num > n);
@@ -108,9 +105,12 @@ var rubric = ( function () {
     
     function FloatTests () {
         RubricTests.call(this);
+        
         var self = this;
         var add = (test) => { self.tests.push(test); return self; };
+        
         add(num => typeof num == 'float');
+        
         self.max = n => add(num => num <= n);
         self.min = n => add(num => num >= n);
         self.greaterThan = n => add(num => num > n);
@@ -124,9 +124,12 @@ var rubric = ( function () {
     
     function ArrayTests () {
         RubricTests.call(this);
+        
         var self = this;
         var add = (test) => { self.tests.push(test); return self; };
+        
         add(arr => arr instanceof Array);
+        
         self.minLength = n => add(arr => arr.length >= n);
         self.maxLength = n => add(arr => arr.length <= n);
         self.hasLength = n => add(arr => arr.length == n);
@@ -168,9 +171,12 @@ var rubric = ( function () {
     
     function ObjectTests () {
         RubricTests.call(this);
+        
         var self = this;
         var add = (test) => { self.tests.push(test); return self; };
+        
         add(obj => typeof obj == 'object' && obj !== null);
+        
         self.instanceOf = type => add(obj => obj instanceof type);
         
         self.hasProperty = (...args) => add(obj => {
@@ -210,9 +216,12 @@ var rubric = ( function () {
     
     function BooleanTests () {
         RubricTests.call(this);
+        
         var self = this;
         var add = (test) => { self.tests.push(test); return self; };
+        
         add(bool => typeof bool == 'boolean');
+        
         self.true = () => add(bool => bool === true);
         self.false = () => add(bool => bool === false);
     }
