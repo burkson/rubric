@@ -2,7 +2,7 @@
     var r = {};
 
     // global on the server, window in the browser
-    var root, noconf;
+    var root;
 
     if (typeof window == 'object' && this === window)
         root = window;
@@ -10,14 +10,6 @@
         root = global;
     else
         root = this;
-
-    if (root != null)
-        noconf = root.r;
-
-    r.noConflict = function () {
-        root.r = noconf;
-        return r;
-    };
 
     r.test = function (rules, obj) {
         if (obj === null || typeof obj != 'object')
@@ -123,8 +115,7 @@
     };
 
     // Optional flag
-    r.optional = 'RUBRIC.OPTIONAL';
-    r.opt = r.optional;
+    r.optional = r.opt = 'RUBRIC_OPT';
 
     // Iterate
     r.iterate = function (rule) {
@@ -311,7 +302,7 @@
         }
     };
 
-    r.str.size = r.str.sizeOf = function (num) {
+    r.str.size = r.str.sizeOf = r.str.lengthOf = function (num) {
         return function (value) {
             return r.string(value) && value.length == num;
         }
@@ -493,16 +484,6 @@
         return value == false || value == 'no' || value == '0' || value == 'false' || value == 'null' || value == 'undefined';
     };
 
-    // Date
-
-    // Time
-
-    // Datetime
-
-    // Email
-
-    // Longitude & Latitude
-
     // Node.js
     if (typeof module !== 'undefined' && module.exports) {
         module.exports = exports = r;
@@ -515,6 +496,6 @@
 
     // included directly via <script> tag
     } else {
-        root.r = r;
+        root.rubric = r;
     }
 }());
