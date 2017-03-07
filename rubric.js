@@ -1,3 +1,11 @@
+if (module)
+    var moment = require('moment');
+else if (window)
+    var moment = window.moment;
+
+if (!moment)
+    throw new Error('Module rubric requires "moment.js"');
+
 var rubric = ( function () {
     const OPTIONAL = 'OPT';
     
@@ -62,6 +70,7 @@ var rubric = ( function () {
         self.optional = () => add(OPTIONAL);
         self.fn = (fn) => add(val => fn(val) === true);
         self.regexp = (exp) => add(val => exp.test(val));
+        self.is = (...args) => add(val => args.indexOf(val) > -1);
         
         self.test = function (value, report = false) {
             if (self.tests.indexOf(OPTIONAL) > -1 && value === undefined)
@@ -95,7 +104,7 @@ var rubric = ( function () {
         self.endsWith = sub => add(str => str.endsWith(sub));
         self.contains = sub => add(str => str.search(sub) > - 1);
         self.regexp = exp => add(str => exp.test(str));
-        self.is = (...args) => add(str => args.indexOf(str) > -1);
+        
     }
     
     StringTests.prototype = Object.create(RubricTests.prototype);
@@ -248,6 +257,29 @@ var rubric = ( function () {
     BooleanTests.prototype = Object.create(RubricTests.prototype);
     BooleanTests.prototype.constructor = BooleanTests;
     
+    function DateTests () {
+        RubricTests.apply(this, arguments);
+        
+        var self = this;
+        var add = (test) => { self.tests.push(test); return self; };
+        
+        add(date => date instanceof Date || moment(date).isValid());
+        
+        self.before = (max) => add(date => moment(date).isBefore(max));
+        self.after = (min) => add(date => moment(date).isAfter(min));
+        self.year = (yr) => add(date => moment(date).year() == year);
+        self.quarter = (qtr) => add(date => moment(date).quarter() == qtr);
+        self.month = (month) => add(date => moment(date).month() == month);
+        self.date = (date) => add(date => moment(date).date() == date);
+        self.weekDay = (day) => add(date => moment(date).day() == day);
+        self.hour = (hour) => add(date => moment(date).hour() == hour);
+        self.minute = (min) => add(date => moment(date).minute() == min);
+        self.second = (sec) => add(date => moment(date).second() == sec);
+    }
+    
+    DateTests.prototype = Object.create(RubricTests.prototype);
+    DateTests.prototype.constructor = DateTests;
+    
     function NullTests () {
         RubricTests.apply(this, arguments);
         this.tests = [ arg => arg === null ];
@@ -291,6 +323,7 @@ var rubric = ( function () {
         object: (def) => new ObjectTests(def),
         function: (def) => new FunctionTests(def),
         boolean: (def) => new BooleanTests(def),
+        date: (def) => new DateTests(def),
         truthy: (def) => new TruthyTests(def),
         falsy: (def) => new FalsyTests(def),
         null: (def) => new NullTests(def),

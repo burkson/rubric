@@ -12,6 +12,7 @@ Simple variable type checking library.
     - [rubric.array()](#user-content-rubric.array)
     - [rubric.object()](#user-content-rubric.object)
     - [rubric.boolean()](#user-content-rubric.boolean)
+    - [rubric.date()](#user-content-rubric.date)
     - [rubric.function()](#user-content-rubric.function)
     - [rubric.truthy()](#user-content-rubric.truthy)
     - [rubric.falsy()](#user-content-rubric.falsy)
@@ -113,63 +114,125 @@ Or...
 
 <h3 id="rubric-root">rubric</h3>
 
-- rubric.test(ruleset, data) -- Tests a ruleset against data, returns true or false
-- rubric.[rules...].test(value) -- Tests a single rule against a given value
-- rubric.report(ruleset, data) -- Tests a ruleset against data, returns an object explaining which property passed/failed
-- optional() -- sets value as optional, if value is given it will be tested
-- fn(fn)
-- regexp(regexp)
+`test(ruleset, data)` Tests a ruleset against data, returns true or false
+
+`[rules...].test(value)` Tests a single rule against a given value
+
+`report(ruleset, data)` Tests a ruleset against data, returns an object explaining which property passed/failed
+
+<h3 id="rubric-global">rubric.[ANY]()</h3>
+
+These methods can be with any of the following types.
+
+`optional()` sets value as optional, if value is given it will be tested
+
+`fn(fn)` return boolean true if valid, all other return values will fail
+
+`regexp(regexp)` given regular expression is used like `regexp.test(val)`
+
+`is(str, ...)` tests if value is any of the given arguments
+
 
 <h3 id="rubric.string">rubric.string()</h3>
 
-- minLength(min)
-- maxLength(max)
-- hasLength(len)
-- startsWith(str)
-- endsWith(str)
-- contains(str)
-- regexp(regexp)
+`minLength(min)`
+
+`maxLength(max)`
+
+`hasLength(len)`
+
+`startsWith(str)`
+
+`endsWith(str)`
+
+`contains(str)`
+
+`regexp(regexp)`
 
 <h3 id="rubric.number">rubric.number()</h3>
 
-- max(max) -- inclusive
-- min(min) -- inclusive
-- greaterThan(min)
-- lessThan(max)
-- even()
-- odd()
-- positive()
-- negative()
+`max(max)` inclusive
+
+`min(min)` inclusive
+
+`greaterThan(min)`
+
+`lessThan(max)`
+
+`even()`
+
+`odd()`
+
+`positive()`
+
+`negative()`
+
 
 <h3 id="rubric.float">rubric.float()</h3>
 
-- max(max) -- inclusive
-- min(min) -- inclusive
-- greaterThan(min)
-- lessThan(max)
-- positive()
-- negative()
+`max(max)` inclusive
+
+`min(min)` inclusive
+
+`greaterThan(min)`
+
+`lessThan(max)`
+
+`positive()`
+
+`negative()`
 
 <h3 id="rubric.array">rubric.array()</h3>
 
-- minLength(min)
-- maxLength(max)
-- hasLength(len)
-- contains(args, ...)
-- containsAny(args, ...)
-- forEach(rule) -- single rule, not ruleset
+`minLength(min)`
+
+`maxLength(max)`
+
+`hasLength(len)`
+
+`contains(args, ...)`
+
+`containsAny(args, ...)`
+
+`forEach(rule)` single rule, not ruleset
 
 <h3 id="rubric.object">rubric.object()</h3>
 
-- instanceOf(obj)
-- hasProperty(prop, ...)
-- hasAnyProperty(prop, ...)
-- ruleset(ruleset) -- full ruleset, use for nested objects
+`instanceOf(obj)`
+
+`hasProperty(prop, ...)`
+
+`hasAnyProperty(prop, ...)`
+
+`ruleset(ruleset)` full ruleset, use for nested objects
 
 <h3 id="rubric.boolean">rubric.boolean()</h3>
 
-- true() -- literal, value === true
-- false() -- literal, value === false
+`true()` literal, value === true
+
+`false()` literal, value === false
+
+<h3 id="rubric.date">rubric.date()</h3>
+
+`before(date)`
+
+`after(date)`
+
+`year(year)` use full year, i.e. use 2017 not 17
+
+`quarter(qtr)` 1 to 4
+
+`month(month)` 0 to 12
+
+`date(date)` 1 to 31
+
+`weekDay(day)` 0 to 7, 0 is Sunday, 6 is Saturday
+
+`hour(hr)` 0 to 23
+
+`minute(min)` 0 to 59
+
+`second(sec)` 0 to 59
 
 <h3 id="rubric.function">rubric.function()</h3>
 
