@@ -37,12 +37,27 @@ var rubric = ( function () {
         return result;
     }
     
+    function RulesetDefaults (ruleset, merge = {}) {
+        var defaults = {};
+        
+        for (var key in ruleset) {
+            var optional = ruleset[key].tests.indexOf(OPTIONAL) > -1;
+            var defValue = ruleset[key].default();
+            
+            if (!optional || defValue !== undefined)
+                defaults[key] = defValue;
+        }
+        
+        return Object.assign({}, defaults, merge);
+    }
+    
     /** ----------------------------------------------------------------------------------------- */
     
-    function RubricTests () {
+    function RubricTests (def) {
         var self = this;
         var add = (test) => { self.tests.push(test); return self; };
         
+        self.def = def;
         self.tests = [];
         self.optional = () => add(OPTIONAL);
         self.fn = (fn) => add(val => fn(val) === true);
@@ -59,10 +74,14 @@ var rubric = ( function () {
             
             return true;
         };
+        
+        self.default = function () {
+            return self.def;
+        };
     }
     
     function StringTests () {
-        RubricTests.call(this);
+        RubricTests.apply(this, arguments);
         
         var self = this;
         var add = (test) => { self.tests.push(test); return self; };
@@ -83,7 +102,7 @@ var rubric = ( function () {
     StringTests.prototype.constructor = StringTests;
     
     function NumberTests () {
-        RubricTests.call(this);
+        RubricTests.apply(this, arguments);
         
         var self = this;
         var add = (test) => { self.tests.push(test); return self; };
@@ -104,7 +123,7 @@ var rubric = ( function () {
     NumberTests.prototype.constructor = NumberTests;
     
     function FloatTests () {
-        RubricTests.call(this);
+        RubricTests.apply(this, arguments);
         
         var self = this;
         var add = (test) => { self.tests.push(test); return self; };
@@ -123,7 +142,7 @@ var rubric = ( function () {
     FloatTests.prototype.constructor = FloatTests;
     
     function ArrayTests () {
-        RubricTests.call(this);
+        RubricTests.apply(this, arguments);
         
         var self = this;
         var add = (test) => { self.tests.push(test); return self; };
@@ -170,7 +189,7 @@ var rubric = ( function () {
     ArrayTests.prototype.constructor = ArrayTests;
     
     function ObjectTests () {
-        RubricTests.call(this);
+        RubricTests.apply(this, arguments);
         
         var self = this;
         var add = (test) => { self.tests.push(test); return self; };
@@ -207,7 +226,7 @@ var rubric = ( function () {
     ObjectTests.prototype.constructor = ObjectTests;
     
     function FunctionTests () {
-        RubricTests.call(this);
+        RubricTests.apply(this, arguments);
         this.tests = [ fn => typeof fn == 'function' ];
     }
     
@@ -215,7 +234,7 @@ var rubric = ( function () {
     FunctionTests.prototype.constructor = FunctionTests;
     
     function BooleanTests () {
-        RubricTests.call(this);
+        RubricTests.apply(this, arguments);
         
         var self = this;
         var add = (test) => { self.tests.push(test); return self; };
@@ -230,7 +249,7 @@ var rubric = ( function () {
     BooleanTests.prototype.constructor = BooleanTests;
     
     function NullTests () {
-        RubricTests.call(this);
+        RubricTests.apply(this, arguments);
         this.tests = [ arg => arg === null ];
     }
     
@@ -238,7 +257,7 @@ var rubric = ( function () {
     NullTests.prototype.constructor = NullTests;
     
     function UndefinedTests () {
-        RubricTests.call(this);
+        RubricTests.apply(this, arguments);
         this.tests = [ arg => arg === undefined ];
     }
     
@@ -246,7 +265,7 @@ var rubric = ( function () {
     UndefinedTests.prototype.constructor = UndefinedTests;
     
     function TruthyTests () {
-        RubricTests.call(this);
+        RubricTests.apply(this, arguments);
         this.tests = [ arg => arg ? true : false ];
     }
     
@@ -254,7 +273,7 @@ var rubric = ( function () {
     TruthyTests.prototype.constructor = TruthyTests;
     
     function FalsyTests () {
-        RubricTests.call(this);
+        RubricTests.apply(this, arguments);
         this.tests = [ arg => arg ? false : true ];
     }
     
@@ -264,17 +283,18 @@ var rubric = ( function () {
     return {
         test: TestRuleset,
         report: TestReport,
-        string: () => new StringTests,
-        number: () => new NumberTests,
-        float: () => new FloatTest,
-        array: () => new ArrayTests,
-        object: () => new ObjectTests,
-        function: () => new FunctionTests,
-        boolean: () => new BooleanTests,
-        truthy: () => new TruthyTests,
-        falsy: () => new FalsyTests,
-        null: () => new NullTests,
-        undefined: () => new UndefinedTests
+        defaults: RulesetDefaults,
+        string: (def) => new StringTests(def),
+        number: (def) => new NumberTests(def),
+        float: (def) => new FloatTests(def),
+        array: (def) => new ArrayTests(def),
+        object: (def) => new ObjectTests(def),
+        function: (def) => new FunctionTests(def),
+        boolean: (def) => new BooleanTests(def),
+        truthy: (def) => new TruthyTests(def),
+        falsy: (def) => new FalsyTests(def),
+        null: (def) => new NullTests(def),
+        undefined: (def) => new UndefinedTests(def)
     };
 })();
 
