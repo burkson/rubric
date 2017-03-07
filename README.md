@@ -1,319 +1,193 @@
 # Rubric
 
-Easy-to-use and simple-to-read object validation library.
+Simple variable type checking library.
 
-- <a href="#quick-start">Quick Start</a>
-- <a href="#methods">Methods</a>
-    - <a href="#rubric.test">rubric.test(ruleset, object)</a>
-    - <a href="#rubric.test.rule">rubric.test.rule(rule, value)</a>
-    - <a href="#rubric.breakdown">rubric.breakdown(ruleset, object)</a>
-- <a href="#tests">Tests</a>
-    - <a href="#tests.number">Number</a>
-    - <a href="#tests.integer">Integer</a>
-    - <a href="#tests.float">Float</a>
-    - <a href="#tests.string">String</a>
-    - <a href="#tests.array">Array</a>
-    - <a href="#tests.object">Object</a>
-    - <a href="#tests.function">Function</a>
-    - <a href="#tests.misc">Misc</a>
-
-<h2 id="quick-start">Quick Start</h2>
+<h2 id="getting-started">Quick Start</h2>
 
 Install using npm:
 
 ```bash
-> npm install rubric
+npm install rubric
 ```
 
-Or, download the source file [__rubric.js__](https://raw.githubusercontent.com/jinger89/rubric/master/rubric.js) listed above.
+Or, download the source file [__rubric.js__](https://raw.githubusercontent.com/jinger89/rubric/master/rubric.js).
 
-Set up your first ruleset and test.
+Setting up your first ruleset and test.
 
 ```javascript
-var userRuleset = {
-    name: {
-        first: rubric.str.range(1, 50),
-        last: rubric.str.range(1, 50)
-    },
-    age: [ rubric.optional, rubric.int.range(0, 100) ],
-    password: rubric.str.min(6),
-    newsletter: rubric.bool
+var ruleset = {
+    firstName: rubric.string().minLength(1),
+    lastName: rubric.string().minLength(1),
+    address: rubric.object().ruleset({
+        street: rubric.string(),
+        street2: rubric.string().optional(),
+        city: rubric.string(),
+        state: rubric.string().hasLength(2),
+        zip: rubric.string().minLength(5)
+    }),
+    age: rubric.number.min(0).max(100),
+    favoriteMovies: rubric.array().forEach(rubric.object().instanceOf(MovieObject))
 };
 
-if (!rubric.test(userRuleset, userData))
-    throw new Error('userData is invalid!');
+if (rubric.test(ruleset, someData))
+    console.log('Passed test!');
+else
+    console.log('Failed test...');
 ```
 
 <h2 id="methods">Methods</h2>
 
-<h3 id="rubric.test">rubric.test(ruleset, object)</h3>
+<h3 id="rubric.test">rubric.test(ruleset, data)</h3>
 
-Test a ruleset against an object.
+Test a ruleset against some data. Both `ruleset` and `data` should be plain objects. Returns true if `data` passes the `ruleset` or false if it fails.
 
-See quick start example.
+<h3 id="rubric.rules.test">rubric.[rules...].test(value)</h3>
 
-<h3 id="rubric.test.rule">rubric.test.rule(rule, value)</h3>
+Each Rubric rule has a `test` method that you can use to test an individual value. For example: `rubric.number().min(-100).max(100).test(200)` would return false.
 
-Test a single rule against a value.
+<h3 id="rubric.report">rubric.report(ruleset, data)</h3>
 
-```javascript
-rubric.test.rule(rubric.int.range(0, 100), 50); // true
-rubric.test.rule(rubric.str.startsWith('foo'), 'hello world'); // false
-```
-
-<h3 id="rubric.breakdown">rubric.breakdown(ruleset, object)</h3>
-
-Test a ruleset against an object and return an object that outlines which parameters are valid and invalid.
-
-Using the quick start example ruleset we might expect to get something like this if we using `rubric.breakdown` on it.
+Like `rubric.test`, both `ruleset` and `data` should be plain objects. Returns an object breaking down which properties and values passed/failed the ruleset.
 
 ```javascript
+// Example return value
 {
-    name: {
-        first: true,    // ok
-        last: false     // not ok, string length not between 1 and 50
+    firstName: true,
+    lastName: true,
+    address: {
+        street: true,
+        city: false, // false if the value failed to pass a rule
+        state: false, // false if the value failed to pass a rule
+        zip: true
     },
-    age: true,          // ok, either not provided or an integer between 0 and 100
-    password: false,    // not ok, string length less than 6
-    newsletter: true    // ok
+    age: true,
+    favoriteMovies: true
 }
 ```
 
-<h3 id="rubric.iterate">rubric.iterate(rule)</h3>
+<h2 id="rules-rulesets">Rules and Rulesets</h2>
 
-Use this to test an array of values against a rule. This method checks to make sure the value is an array, and will fail if it is not.
+Rules are individual tests, while rulesets are a collection of rules in the form of a plain object. Rules can be written using the many tests included in this library, or you can write you own in the form of functions, regular expressions, or any other values which will be compared literally (===).
 
 ```javascript
-var ruleset = {
-    orders: rubric.iterate([
-        [
-            rubric.int.range(100, 999),
-            rubric.int.even
-        ]
-    ])
-};
+// Rule
+rubric.array().contains('foo', 'bar');
 
-rubric.test(ruleset, { orders: [ 100, 200, 300 ] });    // true, all values are within range and even numbers
-rubric.test(ruleset, { orders: [ 111, 200, 300 ] });    // false, there is an odd numbers
-rubric.test(ruleset, { orders: [ 50 ] });               // false, there is a value not within range
-rubric.test(ruleset, { orders: 100 });                  // false, not an array
+// Ruleset
+{
+    firstName: rubric.string(),
+    lastName: rubric.string(),
+    nickName: rubric.string().optional()
+}
+```
+
+### Functions as Tests
+
+There are two ways to use functions as tests. The first way is to use the function by itself.
+
+```javascript
+{
+    someProperty: function (val) {
+        // write your custom test here
+        // return true or false
+    }
+}
+```
+
+The second way is the chain the function into a Rubric test so you can use it with other tests.
+
+```javascript
+{
+    someProperty: rubric.string().minLength(10).fn( function (str) {
+        // write your custom test here
+        // return true or false
+    }).optional() // keep chaining on rules like normal
+}
+```
+
+### Regular Expressions as Tests
+
+You can do the same thing with regular expressions as you can with functions, use them directly or chain them with other Rubric tests.
+
+```javascript
+{
+    someProperty: /[a-z]/g
+}
+```
+
+Or...
+
+```javascript
+{
+    someProperty: rubric.string().minLength(10).regexp(/[a-z]/g).optional()
+}
 ```
 
 <h2 id="tests">Tests</h2>
 
-Tests that are included as part of the library. Remember, you can always write your own tests in the form of functions or regular expressions.
+### Global Tests
 
-### Using Rubric Tests
-```javascript
-var ruleset = {
+- optional() -- value is optional, if value is given it will be tested
+- fn(fn)
+- regexp(regexp)
 
-    // 'name' must be a string, length must be between 1 and 50
-    name: rubric.str.range(1,50),
+### rubric.string()
 
-    // 'age' is optional, can be an integer between 0 and 100
-    age: [
-        rubric.int.range(0, 100),
-        rubric.optional
-    ],
+- minLength(min)
+- maxLength(max)
+- hasLength(len)
+- startsWith(str)
+- endsWith(str)
+- contains(str)
+- regexp(regexp)
 
-    // 'email' must be a string that starts with 'foo' AND ends with 'com'
-    email: [
-        [
-            rubric.str.startsWith('foo'),
-            rubric.str.endsWith('com')
-        ]
-    ]
-};
-```
+### rubric.number()
 
-### Using Functions as Tests
-```javascript
-var ruleset = {
-    age: function (value) {
-        // write your own test here
-        // must return boolean true if valid
-        // all other return values treated as false
-    }
-};
-```
+- max(max) -- inclusive
+- min(min) -- inclusive
+- greaterThan(min)
+- lessThan(max)
+- even()
+- odd()
+- positive()
+- negative()
 
-### Using Regex as Tests
-```javascript
-var ruleset = {
-    name: /[a-z\s\-]{1,50}/i,
-    email: /^foo.*com$/i
-};
+### rubric.float()
 
-```
+- max(max) -- inclusive
+- min(min) -- inclusive
+- greaterThan(min)
+- lessThan(max)
+- positive()
+- negative()
 
-<h2 id="tests.number">Number</h2>
+### rubric.array()
 
-### rubric.num
+- minLength(min)
+- maxLength(max)
+- hasLength(len)
+- contains(args, ...)
+- containsAny(args, ...)
+- forEach(rule) -- single rule, not ruleset
 
-Check if value is numeric, which includes: integers, floats, and number strings. This is very loose, `rubric.int` and `rubric.float` should be used instead of this one whenever possible.
+### rubric.object()
 
-### rubric.num.range(min, max)
+- instanceOf(obj)
+- hasProperty(prop, ...)
+- hasAnyProperty(prop, ...)
+- ruleset(ruleset) -- full ruleset, use for nested objects
 
-Must be numeric and within `min` and `max` range.
+### rubric.boolean()
 
-### rubric.num.greaterThan(num)
+- true() -- literal, value === true
+- false() -- literal, value === false
 
-Must be numeric and greater than `num`.
+### rubric.function()
 
-### rubric.num.lessThan(num)
+### rubric.truthy()
 
-Must be numeric and less than `num`.
+### rubric.falsy()
 
-### rubric.num.min(num)
+### rubric.null()
 
-Must be numeric and no less than `num`.
-
-### rubric.num.max(num)
-
-Must be numeric and no greater than `num`.
-
-### rubric.num.positive
-
-Must be numeric and positive.
-
-### rubric.num.negative
-
-Must be numeric and negative.
-
-<h2 id="tests.integer">Integer</h2>
-
-### rubric.int
-
-Check if value is an integer. Excludes floats and number strings. This is preferred over `rubric.num`.
-
-### rubric.int.range(min, max)
-
-### rubric.int.greaterThan(num)
-
-### rubric.int.lessThan(num)
-
-### rubric.int.min(num)
-
-### rubric.int.max(num)
-
-### rubric.int.even
-
-Must be an integer and even.
-
-### rubric.int.odd
-
-Must be an integer and odd.
-
-### rubric.int.positive
-
-### rubric.int.negative
-
-<h2 id="tests.float">Float</h2>
-
-### rubric.float
-
-Check if value is a float. Excludes integers and number strings. This is preferred over `rubric.num`.
-
-### rubric.float.precision(num)
-
-Must be a float and have decimal precision to `num` degree.
-
-### rubric.float.range(min, max)
-
-### rubric.float.greaterThan(num)
-
-### rubric.float.lessThan(num)
-
-### rubric.float.min(num)
-
-### rubric.float.max(num)
-
-### rubric.float.positive
-
-### rubric.float.negative
-
-<h2 id="tests.string">String</h2>
-
-### rubric.str
-
-Check if value is a string. This includes number strings.
-
-### rubric.str.contains(str, flags)
-
-Must be a string and contain `str` fragment. Case is sensitive by default, but you can set `flags` to `"i"` to make it case insensitive.
-
-### rubric.str.startsWith(str)
-
-Must be a string and start with `str` fragment. Case sensitive.
-
-### rubric.str.endsWith(str)
-
-Must be a string and end with `str` fragment. Case sensitive.
-
-### rubric.str.sizeOf(num)
-
-Must be a string and have length of `num`.
-
-### rubric.str.range(min, max)
-
-Must be a string and have length between `min` and `max`.
-
-### rubric.str.min(num)
-
-Must be a string and have length no less than `num`.
-
-### rubric.str.max(num)
-
-Must be a string and have length no more than `num`.
-
-<h2 id="tests.array">Array</h2>
-
-### rubric.arr
-
-Check if value is an array.
-
-### rubric.arr.contains(element)
-
-### rubric.arr.containsAll(element, ...)
-
-### rubric.arr.containsAny(element, ...)
-
-### rubric.arr.containsNone(element, ...)
-
-### rubric.arr.startsWith(element, ...)
-
-### rubric.arr.endsWith(element, ...)
-
-### rubric.arr.sizeOf(num)
-
-### rubric.arr.range(min, max)
-
-### rubric.arr.min(num)
-
-### rubric.arr.max(num)
-
-<h2 id="tests.object">Object</h2>
-
-### rubric.obj
-
-### rubric.obj.instanceof(object)
-
-### rubric.obj.hasProperty(str)
-
-<h2 id="tests.function">Function</h2>
-
-### rubric.fn
-
-### rubric.fn.args(num)
-
-<h2 id="tests.misc">Misc</h2>
-
-### rubric.bool
-
-### rubric.null
-
-### rubric.undefined
-
-### rubric.truthy
-
-### rubric.falsy
+### rubric.undefined()

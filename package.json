@@ -1,11 +1,8 @@
 {
   "name": "rubric",
   "version": "0.3.7",
-  "description": "Easy-to-use and simple-to-read object validation library.",
+  "description": "Simple variable type checking library.",
   "main": "rubric.js",
-  "scripts": {
-    "test": "mocha tests/index.js --reporter spec"
-  },
   "repository": {
     "type": "git",
     "url": "https://github.com/jinger89/rubric.git"
