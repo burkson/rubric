@@ -14,5 +14,8 @@
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/jinger89/rubric/issues"
+  },
+  "dependencies": {
+    "moment": "^2.17.1"
   }
 }
