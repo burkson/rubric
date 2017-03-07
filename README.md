@@ -2,7 +2,23 @@
 
 Simple variable type checking library.
 
-<h2 id="getting-started">Quick Start</h2>
+- [Quick Start](#user-content-quick-start)
+- [Rules and Rulesets](#user-content-rules-rulesets)
+- [Methods](#user-content-methods)
+    - [rubric](#user-content-rubric-root)
+    - [rubric.string()](#user-content-rubric.string)
+    - [rubric.number()](#user-content-rubric.number)
+    - [rubric.float()](#user-content-rubric.float)
+    - [rubric.array()](#user-content-rubric.array)
+    - [rubric.object()](#user-content-rubric.object)
+    - [rubric.boolean()](#user-content-rubric.boolean)
+    - [rubric.function()](#user-content-rubric.function)
+    - [rubric.truthy()](#user-content-rubric.truthy)
+    - [rubric.falsy()](#user-content-rubric.falsy)
+    - [rubric.null()](#user-content-rubric.null)
+    - [rubric.undefined()](#user-content-rubric.undefined)
+
+<h2 id="quick-started">Quick Start</h2>
 
 Install using npm:
 
@@ -33,36 +49,6 @@ if (rubric.test(ruleset, someData))
     console.log('Passed test!');
 else
     console.log('Failed test...');
-```
-
-<h2 id="methods">Methods</h2>
-
-<h3 id="rubric.test">rubric.test(ruleset, data)</h3>
-
-Test a ruleset against some data. Both `ruleset` and `data` should be plain objects. Returns true if `data` passes the `ruleset` or false if it fails.
-
-<h3 id="rubric.rules.test">rubric.[rules...].test(value)</h3>
-
-Each Rubric rule has a `test` method that you can use to test an individual value. For example: `rubric.number().min(-100).max(100).test(200)` would return false.
-
-<h3 id="rubric.report">rubric.report(ruleset, data)</h3>
-
-Like `rubric.test`, both `ruleset` and `data` should be plain objects. Returns an object breaking down which properties and values passed/failed the ruleset.
-
-```javascript
-// Example return value
-{
-    firstName: true,
-    lastName: true,
-    address: {
-        street: true,
-        city: false, // false if the value failed to pass a rule
-        state: false, // false if the value failed to pass a rule
-        zip: true
-    },
-    age: true,
-    favoriteMovies: true
-}
 ```
 
 <h2 id="rules-rulesets">Rules and Rulesets</h2>
@@ -123,15 +109,18 @@ Or...
 }
 ```
 
-<h2 id="tests">Tests</h2>
+<h2 id="methods">Methods</h2>
 
-### Global Tests
+<h3 id="rubric-root">rubric</h3>
 
-- optional() -- value is optional, if value is given it will be tested
+- rubric.test(ruleset, data) -- Tests a ruleset against data, returns true or false
+- rubric.[rules...].test(value) -- Tests a single rule against a given value
+- rubric.report(ruleset, data) -- Tests a ruleset against data, returns an object explaining which property passed/failed
+- optional() -- sets value as optional, if value is given it will be tested
 - fn(fn)
 - regexp(regexp)
 
-### rubric.string()
+<h3 id="rubric.string">rubric.string()</h3>
 
 - minLength(min)
 - maxLength(max)
@@ -141,7 +130,7 @@ Or...
 - contains(str)
 - regexp(regexp)
 
-### rubric.number()
+<h3 id="rubric.number">rubric.number()</h3>
 
 - max(max) -- inclusive
 - min(min) -- inclusive
@@ -152,7 +141,7 @@ Or...
 - positive()
 - negative()
 
-### rubric.float()
+<h3 id="rubric.float">rubric.float()</h3>
 
 - max(max) -- inclusive
 - min(min) -- inclusive
@@ -161,7 +150,7 @@ Or...
 - positive()
 - negative()
 
-### rubric.array()
+<h3 id="rubric.array">rubric.array()</h3>
 
 - minLength(min)
 - maxLength(max)
@@ -170,24 +159,24 @@ Or...
 - containsAny(args, ...)
 - forEach(rule) -- single rule, not ruleset
 
-### rubric.object()
+<h3 id="rubric.object">rubric.object()</h3>
 
 - instanceOf(obj)
 - hasProperty(prop, ...)
 - hasAnyProperty(prop, ...)
 - ruleset(ruleset) -- full ruleset, use for nested objects
 
-### rubric.boolean()
+<h3 id="rubric.boolean">rubric.boolean()</h3>
 
 - true() -- literal, value === true
 - false() -- literal, value === false
 
-### rubric.function()
+<h3 id="rubric.function">rubric.function()</h3>
 
-### rubric.truthy()
+<h3 id="rubric.truthy">rubric.truthy()</h3>
 
-### rubric.falsy()
+<h3 id="rubric.falsy">rubric.falsy()</h3>
 
-### rubric.null()
+<h3 id="rubric.null">rubric.null()</h3>
 
-### rubric.undefined()
+<h3 id="rubric.undefined">rubric.undefined()</h3>
