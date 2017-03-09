@@ -8,7 +8,6 @@ Simple variable type checking library.
     - [rubric](#user-content-rubric-root)
     - [rubric.string()](#user-content-rubric.string)
     - [rubric.number()](#user-content-rubric.number)
-    - [rubric.float()](#user-content-rubric.float)
     - [rubric.array()](#user-content-rubric.array)
     - [rubric.object()](#user-content-rubric.object)
     - [rubric.boolean()](#user-content-rubric.boolean)
@@ -132,7 +131,6 @@ These methods can be with any of the following types.
 
 `is(str, ...)` tests if value is any of the given arguments
 
-
 <h3 id="rubric.string">rubric.string()</h3>
 
 `minLength(min)`
@@ -162,21 +160,6 @@ These methods can be with any of the following types.
 `even()`
 
 `odd()`
-
-`positive()`
-
-`negative()`
-
-
-<h3 id="rubric.float">rubric.float()</h3>
-
-`max(max)` inclusive
-
-`min(min)` inclusive
-
-`greaterThan(min)`
-
-`lessThan(max)`
 
 `positive()`
 

@@ -131,25 +131,6 @@ var rubric = ( function () {
     NumberTests.prototype = Object.create(RubricTests.prototype);
     NumberTests.prototype.constructor = NumberTests;
     
-    function FloatTests () {
-        RubricTests.apply(this, arguments);
-        
-        var self = this;
-        var add = (test) => { self.tests.push(test); return self; };
-        
-        add(num => typeof num == 'float');
-        
-        self.max = n => add(num => num <= n);
-        self.min = n => add(num => num >= n);
-        self.greaterThan = n => add(num => num > n);
-        self.lessThan = n => add(num => num < n);
-        self.positive = () => add(num => num > 0);
-        self.negative = () => add(num => num < 0);
-    }
-    
-    FloatTests.prototype = Object.create(RubricTests.prototype);
-    FloatTests.prototype.constructor = FloatTests;
-    
     function ArrayTests () {
         RubricTests.apply(this, arguments);
         
@@ -318,7 +299,6 @@ var rubric = ( function () {
         defaults: RulesetDefaults,
         string: (def) => new StringTests(def),
         number: (def) => new NumberTests(def),
-        float: (def) => new FloatTests(def),
         array: (def) => new ArrayTests(def),
         object: (def) => new ObjectTests(def),
         function: (def) => new FunctionTests(def),
