@@ -73,7 +73,7 @@ var rubric = ( function () {
         self.is = (...args) => add(val => args.indexOf(val) > -1);
         
         self.test = function (value, report = false) {
-            if (self.tests.indexOf(OPTIONAL) > -1 && value === undefined)
+            if (self.tests.indexOf(OPTIONAL) > -1 && (typeof value == 'undefined' || value === null))
                 return true;
             
             for (var i = 0; i < self.tests.length; i++)
