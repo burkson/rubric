@@ -1,6 +1,6 @@
 {
   "name": "rubric",
-  "version": "0.5.6",
+  "version": "0.5.7",
   "description": "Simple variable type checking library.",
   "main": "rubric.js",
   "repository": {
