@@ -157,6 +157,8 @@ These methods can be with any of the following types.
 
 `lessThan(max)`
 
+`between(min, max)` _Inclusive_
+
 `even()`
 
 `odd()`
