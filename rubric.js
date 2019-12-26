@@ -122,6 +122,7 @@ var rubric = ( function () {
         self.min = n => add(num => num >= n);
         self.greaterThan = n => add(num => num > n);
         self.lessThan = n => add(num => num < n);
+        self.between = (x, y) => add(num => num >= x && num <= y);
         self.even = () => add(num => num % 2 == 0);
         self.odd = () => add(num => num % 2 == 1);
         self.positive = () => add(num => num > 0);
